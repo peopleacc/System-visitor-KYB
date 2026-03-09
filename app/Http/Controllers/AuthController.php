@@ -20,6 +20,10 @@ class AuthController extends Controller
             }
             // Jika sudah login tapi OTP belum terverifikasi, redirect ke OTP
             return redirect()->route('otp.show');
+        } elseif (Auth::check()) {
+            if (session('otp_satpam')) {
+                return redirect()->route('dashboard');
+            }
         }
 
         return view('auth.login');
@@ -80,6 +84,35 @@ class AuthController extends Controller
             'npk.required' => 'NPK wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
+
+        // buat satpam
+        $creds = [
+            'name' => $validated['npk'],
+            'password' => validate['password']
+        ];
+        if (Auth::attempt($creds)) {
+            $request->session()->regenerate();
+
+
+            // OTP logic ...
+            $otp_satpam = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            session([
+                'dept' => Auth::guard('lembur')->user()->dept,
+                'otp_satpam' => $otp_satpam,
+                'otp_expires_at' => now()->addMinutes(5),
+                'otp_verified' => false,
+            ]);
+
+
+            otp::create([
+                'code' => $otp_satpam,
+                'expired_at' => now()->addMinutes(5),
+            ]);
+
+            return redirect()->route('otp.show');
+        }
+        ;
+
 
         $user = Handphone::where('npk', $validated['npk'])->first();
 

@@ -10,14 +10,21 @@ class OtpController extends Controller
     public function showOtp()
     {
         // Jika tidak ada OTP code, redirect ke login
-        if (!session('otp_code')) {
-            return redirect()->route('login');
+        if (session('otp_code')) {
+            $otp = session('otp_code');
+
+            return view('auth.otp', compact('otp'));
+
+        } elseif (session('otp_satpam')) {
+
+            $otp = session('otp_satpam');
+            return view('auth.otp', compact('otp'));
         }
 
         // Kirim OTP ke view untuk demo (di production hapus ini)
-        $otp = session('otp_code');
 
-        return view('auth.otp', compact('otp'));
+        return redirect()->route('login');
+
     }
 
     public function verify(Request $request)
@@ -30,7 +37,10 @@ class OtpController extends Controller
         // Gabungkan 6 input menjadi 1 string
         $otpInput = implode('', $request->otp);
         $storedOtp = session('otp_code');
+        $storedOtps = session('otp_satpam');
         $expiresAt = session('otp_expires_at');
+
+
 
         // Cek apakah OTP sudah expired
         if (!$storedOtp || now()->isAfter($expiresAt)) {
@@ -38,17 +48,26 @@ class OtpController extends Controller
         }
 
         // Cek apakah OTP cocok
-        if ($otpInput !== $storedOtp) {
-            return back()->withErrors(['otp' => 'Kode OTP tidak valid. Silakan coba lagi.']);
+        if ($otpInput == $storedOtp) {
+            session(['otp_verified' => true]);
+            session()->forget(['otp_code', 'otp_expires_at']);
+
+            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
+
         }
+
+        if ($otpInput == $storedOtps) {
+            session(['otp_verified' => true]);
+            session()->forget(['otp_code', 'otp_expires_at']);
+
+            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
+
+        }
+        return back()->withErrors(['otp' => 'Kode OTP tidak valid. Silakan coba lagi.']);
 
 
 
         // OTP berhasil diverifikasi
-        session(['otp_verified' => true]);
-        session()->forget(['otp_code', 'otp_expires_at']);
-
-        return redirect()->route('dashboard')->with('success', 'Login berhasil!');
     }
 
     public function resendOtp()
