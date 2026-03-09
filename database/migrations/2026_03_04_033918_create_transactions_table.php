@@ -22,6 +22,7 @@ return new class extends Migration {
 
             $table->date('date');
             $table->string('dept')->nullable();
+            $table->string('location')->nullable();
             $table->string('status')->nullable();
             $table->string('barcode')->nullable();
 

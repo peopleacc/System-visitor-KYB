@@ -21,7 +21,6 @@ return new class extends Migration
 
             $table->date('date');
             $table->string('status')->nullable();
-            $table->string('QRcode')->nullable();
             $table->string('barcode')->nullable();
 
             $table->time('check_in')->nullable();

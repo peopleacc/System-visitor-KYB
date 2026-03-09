@@ -36,33 +36,31 @@ class OtpController extends Controller
 
         // Gabungkan 6 input menjadi 1 string
         $otpInput = implode('', $request->otp);
-        $storedOtp = session('otp_code');
-        $storedOtps = session('otp_satpam');
+
+        // Prefer `otp_code` (lembur) fallback ke `otp_satpam` (satpam)
+        $storedOtp = session('otp_code') ?? session('otp_satpam');
         $expiresAt = session('otp_expires_at');
 
-
+        // Jika tidak ada OTP di session, minta login ulang
+        if (!$storedOtp) {
+            return redirect()->route('login')->withErrors(['otp' => 'Tidak ada kode OTP. Silakan login kembali.']);
+        }
 
         // Cek apakah OTP sudah expired
-        if (!$storedOtp || now()->isAfter($expiresAt)) {
+        if ($expiresAt && now()->isAfter($expiresAt)) {
             return back()->withErrors(['otp' => 'Kode OTP sudah kadaluarsa. Silakan kirim ulang.']);
         }
 
         // Cek apakah OTP cocok
         if ($otpInput == $storedOtp) {
             session(['otp_verified' => true]);
-            session()->forget(['otp_code', 'otp_expires_at']);
+
+            // Hapus keys terkait OTP
+            session()->forget(['otp_code', 'otp_satpam', 'otp_expires_at']);
 
             return redirect()->route('dashboard')->with('success', 'Login berhasil!');
-
         }
 
-        if ($otpInput == $storedOtps) {
-            session(['otp_verified' => true]);
-            session()->forget(['otp_code', 'otp_expires_at']);
-
-            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
-
-        }
         return back()->withErrors(['otp' => 'Kode OTP tidak valid. Silakan coba lagi.']);
 
 
@@ -72,22 +70,39 @@ class OtpController extends Controller
 
     public function resendOtp()
     {
-        if (!Auth::guard('lembur')->check()) {
+        // Hanya izinkan jika salah satu guard ter-auth
+        if (!Auth::guard('lembur')->check() && !Auth::check()) {
             return redirect()->route('login');
         }
 
         // Generate OTP baru
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $expiresAt = now()->addMinutes(5);
 
-        session([
-            'otp_code' => $otp,
-            'otp_email' => Auth::guard('lembur')->user()->no_hp ?? '',
-            'otp_expires_at' => now()->addMinutes(5),
-        ]);
+        // Jika user lembur sedang login, simpan ke key `otp_code`
+        if (Auth::guard('lembur')->check()) {
+            $contact = Auth::guard('lembur')->user()->no_hp ?? '';
+            session([
+                'otp_code' => $otp,
+                'otp_expires_at' => $expiresAt,
+                'otp_verified' => false,
+                'otp_email' => $contact,
+            ]);
+        } else {
+            // Default guard (satpam)
+            $contact = Auth::user()->email ?? '';
+            session([
+                'otp_satpam' => $otp,
+                'otp_expires_at' => $expiresAt,
+                'otp_verified' => false,
+                'otp_email' => $contact,
+            ]);
+        }
 
+        // Simpan ke DB untuk audit (opsional)
         otp::create([
             'code' => $otp,
-            'expired_at' => now()->addMinutes(5),
+            'expired_at' => $expiresAt,
         ]);
 
         // In production, send OTP via email/SMS here

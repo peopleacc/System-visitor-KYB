@@ -15,8 +15,5 @@ class Handphone extends Model
         'no_hp',
     ];
 
-    public function visitor_1(): BelongsTo
-    {
-        return $this->belongsTo(Visitor::class,'visitor_id');
-    }
+    
 }

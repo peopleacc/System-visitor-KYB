@@ -216,7 +216,7 @@
 
                     {{-- Approve Action --}}
                     @if($transaction->status == 'waiting')
-                        <div class="border-t border-gray-100 pt-5">
+                        <div class="border-t border-gray-100 pt-5 space-y-4">
                             <form method="POST" action="{{ route('transaction.update', $transaction->id) }}">
                                 @csrf
                                 @method('PUT')
@@ -226,6 +226,38 @@
                                 <input type="hidden" name="user_meeting" value="{{ $transaction->user_meeting }}">
                                 <input type="hidden" name="type" value="{{ $transaction->type }}">
 
+                                {{-- Pilihan Lokasi --}}
+                                <div class="space-y-2 mb-4">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lokasi Kunjungan</p>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <label class="relative cursor-pointer group">
+                                            <input type="radio" name="location" value="office"
+                                                class="peer absolute opacity-0 w-0 h-0" required>
+                                            <div
+                                                class="p-3 rounded-xl border-2 border-gray-200 bg-gray-50 flex flex-col items-center gap-1.5 transition-all duration-200 peer-checked:border-red-500 peer-checked:bg-red-50 group-hover:border-red-300">
+                                                <span
+                                                    class="material-icons-outlined text-gray-400 peer-checked:text-red-500 group-hover:text-red-400"
+                                                    style="font-size:22px;">business</span>
+                                                <p class="text-xs font-semibold text-gray-600 peer-checked:text-red-600">Office
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        <label class="relative cursor-pointer group">
+                                            <input type="radio" name="location" value="plant"
+                                                class="peer absolute opacity-0 w-0 h-0" required>
+                                            <div
+                                                class="p-3 rounded-xl border-2 border-gray-200 bg-gray-50 flex flex-col items-center gap-1.5 transition-all duration-200 peer-checked:border-red-500 peer-checked:bg-red-50 group-hover:border-red-300">
+                                                <span
+                                                    class="material-icons-outlined text-gray-400 peer-checked:text-red-500 group-hover:text-red-400"
+                                                    style="font-size:22px;">factory</span>
+                                                <p class="text-xs font-semibold text-gray-600 peer-checked:text-red-600">Plant
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <button type="submit"
                                     class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/25 transition-all duration-200 hover:shadow-red-500/40 hover:-translate-y-0.5"
                                     onclick="return confirm('Apakah Anda yakin ingin menyetujui visitor ini?')">
@@ -233,11 +265,88 @@
                                     Approve Visitor
                                 </button>
                             </form>
-                            <p class="text-xs text-gray-400 text-center mt-3">
+                            <p class="text-xs text-gray-400 text-center">
                                 Barcode akan otomatis digenerate dan dikirim via email
                             </p>
                         </div>
+
+                    @elseif(in_array($transaction->status, ['approved', 'checked_in']))
+                        <div class="border-t border-gray-100 pt-5">
+                            <button onclick="document.getElementById('qrModal').classList.remove('hidden')"
+                                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white rounded-xl text-sm font-bold shadow-lg shadow-gray-500/25 transition-all duration-200 hover:-translate-y-0.5">
+                                <span class="material-icons-outlined" style="font-size:20px;">qr_code_2</span>
+                                Lihat QR Code
+                            </button>
+                        </div>
                     @endif
+
+
+                    {{-- QR Code Modal --}}
+                    <div id="qrModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+                        {{-- Backdrop --}}
+                        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                            onclick="document.getElementById('qrModal').classList.add('hidden')"></div>
+
+                        {{-- Modal Content --}}
+                        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden">
+                            {{-- Modal Header --}}
+                            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-icons-outlined text-red-500"
+                                        style="font-size:20px;">qr_code_2</span>
+                                    <h4 class="text-sm font-bold text-gray-800">QR Code Visitor</h4>
+                                </div>
+                                <button onclick="document.getElementById('qrModal').classList.add('hidden')"
+                                    class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors">
+                                    <span class="material-icons-outlined text-gray-500" style="font-size:18px;">close</span>
+                                </button>
+                            </div>
+
+                            {{-- Modal Body --}}
+                            <div class="p-6 flex flex-col items-center gap-4">
+                                {{-- Nama & Status --}}
+                                <div class="text-center">
+                                    <p class="text-base font-bold text-gray-800">{{ $transaction->name }}</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">{{ $transaction->type }} •
+                                        {{ $transaction->date }}
+                                    </p>
+                                </div>
+
+                                {{-- QR Code --}}
+                                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-200">
+                                    @php
+                                        // Gunakan barcode transaksi jika ada, jika tidak ada fallback ke kode di card_qr
+                                        $qrText = $transaction->barcode ?: ($transaction->card_qr ? $transaction->card_qr->code : null);
+                                    @endphp
+                                    
+                                    @if($qrText)
+                                        {{-- Jika barcode berupa teks/OTP, generate QR via API --}}
+                                        {!! QrCode::size(180)->style('round')->eye('circle')->color(17, 24, 39)->generate($qrText) !!}
+                                    @else
+                                        <p class="text-gray-400 text-sm">QR Code tidak tersedia</p>
+                                    @endif
+                                </div>
+
+                                {{-- Kode OTP / Barcode --}}
+                                @if(isset($qrText) && $qrText)
+                                    <div class="w-full px-4 py-3 bg-gray-50 rounded-xl border border-gray-200 text-center">
+                                        <p class="text-xs text-gray-400 mb-1 uppercase tracking-wider font-semibold">Kode OTP
+                                        </p>
+                                        <p class="text-2xl font-bold text-gray-800 tracking-widest font-mono">
+                                            {{ $qrText }}
+                                        </p>
+                                    </div>
+                                @endif
+
+                                {{-- Print Button --}}
+                                <button onclick="window.print()"
+                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-semibold transition-colors duration-200">
+                                    <span class="material-icons-outlined" style="font-size:18px;">print</span>
+                                    Print QR Code
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
             </div>

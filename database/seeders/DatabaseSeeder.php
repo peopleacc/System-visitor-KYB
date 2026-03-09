@@ -21,6 +21,13 @@ class DatabaseSeeder extends Seeder
             CardSeeder::class,
         ]);
 
+        User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'role' => 'admin',
+            'password' => 'pasword'
+        ]);
+
     }
 
     public function run_visitor(): void

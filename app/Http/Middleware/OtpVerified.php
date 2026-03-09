@@ -14,13 +14,17 @@ class OtpVerified
      */
     public function handle(Request $request, Closure $next)
     {
-        // Jika user belum login, redirect ke login
-        if (!Auth::guard('lembur')->check()) {
+        $isLemburAuth = Auth::guard('lembur')->check();
+        $isDefaultAuth = Auth::check();
+        $otpVerified = session('otp_verified');
+
+        // Belum login sama sekali → ke login
+        if (!$isLemburAuth && !$isDefaultAuth) {
             return redirect()->route('login');
         }
 
-        // Jika OTP belum diverifikasi, redirect ke halaman OTP
-        if (!session('otp_verified')) {
+        // Sudah login tapi OTP belum diverifikasi → ke OTP
+        if (!$otpVerified) {
             return redirect()->route('otp.show');
         }
 

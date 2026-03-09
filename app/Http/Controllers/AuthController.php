@@ -87,8 +87,8 @@ class AuthController extends Controller
 
         // buat satpam
         $creds = [
-            'name' => $validated['npk'],
-            'password' => validate['password']
+            'email' => $validated['npk'],
+            'password' => $validated['password']
         ];
         if (Auth::attempt($creds)) {
             $request->session()->regenerate();
@@ -97,7 +97,6 @@ class AuthController extends Controller
             // OTP logic ...
             $otp_satpam = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             session([
-                'dept' => Auth::guard('lembur')->user()->dept,
                 'otp_satpam' => $otp_satpam,
                 'otp_expires_at' => now()->addMinutes(5),
                 'otp_verified' => false,

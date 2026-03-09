@@ -32,39 +32,43 @@
             <div class="text-xs mt-8 font-semibold text-white/60 uppercase tracking-wider px-4 mb-3">
                 Kelola Visitor
             </div>
+            @if(Auth::check())
+                    <!-- Approval -->
+                    <li>
+                        <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                                                          {{ request()->routeIs('transaction.*')
+                ? 'menu-item-active'
+                : 'hover:bg-white/10' }}"><i class="bi bi-kanban"></i> <span class="font-medium"> Desk
+                            </span>
+                        </a>
+                    </li>
 
-            <!-- Approval -->
-            <li>
-                <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                          {{ request()->routeIs('transaction.*')
-    ? 'menu-item-active'
-    : 'hover:bg-white/10' }}"><i class="bi bi-list text-xl"></i> <span class="font-medium">List Visitor</span>
-                </a>
-            </li>
-            <!-- Approval -->
-            <li>
-                <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                          {{ request()->routeIs('transaction.*')
-    ? 'menu-item-active'
-    : 'hover:bg-white/10' }}"><i class="bi bi-list text-xl"></i> <span class="font-medium">List Visitor</span>
-                </a>
-            </li>
-            <!-- Approval -->
-            <li>
-                <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                          {{ request()->routeIs('transaction.*')
-    ? 'menu-item-active'
-    : 'hover:bg-white/10' }}"><i class="bi bi-list text-xl"></i> <span class="font-medium">List Visitor</span>
-                </a>
-            </li>
-            <!-- Approval -->
-            <li>
-                <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                          {{ request()->routeIs('transaction.*')
-    ? 'menu-item-active'
-    : 'hover:bg-white/10' }}"><i class="bi bi-list text-xl"></i> <span class="font-medium">List Visitor</span>
-                </a>
-            </li>
+                    <!-- Approval -->
+                    <li>
+                        <a href="{{ route('check.in.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                                                  {{ request()->routeIs('check.in.*')
+                ? 'menu-item-active'
+                : 'hover:bg-white/10' }}"><i class="bi bi-box-arrow-in-right"></i>
+                            <span class="font-medium">Check
+                                In/Out</span>
+                        </a>
+                    </li>
+            @endif
+
+            @if (Auth::guard('lembur')->check())
+
+                    <!-- Approval -->
+                    <li>
+                        <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                                                                  {{ request()->routeIs('transaction.*')
+                ? 'menu-item-active'
+                : 'hover:bg-white/10' }}"><i class="bi bi-list text-xl"></i> <span class="font-medium">List
+                                Visitor</span>
+                        </a>
+                    </li>
+            @endif
+
+
 
 
             <!-- visitor -->

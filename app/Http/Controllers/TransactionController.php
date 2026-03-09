@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VisitorApprovedMail;
 use Illuminate\Support\Facades\Log;
+use App\Models\Card;
 
 class TransactionController extends Controller
 {
@@ -27,17 +28,37 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with(['visitor_1', 'card_qr'])->findOrFail($id);
         return view('transaction.show', compact('transaction'));
+
+
     }
 
     public function update(Request $request, $id)
     {
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        $transaction = Transaction::with('visitor_1')->findOrFail($id);
-        $transaction->update([
-            'status' => 'approved',
-            'barcode' => $otp,
+        $validated = $request->validate([
+            'location' => 'required',
         ]);
+
+        if ($validated['location'] == 'office') {
+
+            $cards = Card::where('tipe', 'office')->first();
+            $cardid = $cards->id;
+            $transaction = Transaction::with('visitor_1')->findOrFail($id);
+            $transaction->update([
+                'status' => 'approved',
+                'card_id' => $cardid,
+            ]);
+
+
+        } else if ($validated['location'] == 'plant') {
+
+            $cards = Card::where('tipe', 'plant')->first();
+            $cardid = $cards->id;
+            $transaction = Transaction::with('visitor_1')->findOrFail($id);
+            $transaction->update([
+                'status' => 'approved',
+                'card_id' => $cardid,
+            ]);
+        }
 
         // Kirim email ke visitor jika ada email
         try {

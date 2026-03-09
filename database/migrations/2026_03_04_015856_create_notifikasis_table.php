@@ -16,6 +16,10 @@ return new class extends Migration {
                 ->constrained('visitors')           // ← sebutkan nama tabel secara eksplisit
                 ->cascadeOnUpdate()
                 ->onDelete('cascade');
+            $table->foreignId('vendor_id')
+                ->constrained('vendors')           // ← sebutkan nama tabel secara eksplisit
+                ->cascadeOnUpdate()
+                ->onDelete('cascade');
             $table->string('no_hp');
             $table->text('message');
             $table->timestamps();
