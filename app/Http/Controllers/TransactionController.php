@@ -2,26 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Handphone;
+use App\Models\notifikasi;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
-use App\Models\Visitor_acc;
-use App\Models\Contractor;
-use App\Models\Barcode;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\VisitorApprovedMail;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TransactionController extends Controller
 {
     public function index()
     {
-        $transactions = Visitor_acc::with('visitor')->get();
-        return view("transaction.index", compact("transactions"));
+        $dept = session('dept');
+
+        $transactions = Transaction::with('visitor_1')
+            ->where('dept', $dept)
+            ->get();
+
+        return view('transaction.index', compact('transactions'));
     }
 
     public function show($id)
     {
-        $transaction = Visitor_acc::with('visitor')->findOrFail($id);
+        $transaction = Transaction::with(['visitor_1', 'card_qr'])->findOrFail($id);
         return view('transaction.show', compact('transaction'));
     }
 
@@ -29,8 +33,7 @@ class TransactionController extends Controller
     {
         $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Update visitor_acc — barcode langsung disimpan di field barcode
-        $transaction = Visitor_acc::with('visitor')->findOrFail($id);
+        $transaction = Transaction::with('visitor_1')->findOrFail($id);
         $transaction->update([
             'status' => 'approved',
             'barcode' => $otp,
@@ -41,8 +44,8 @@ class TransactionController extends Controller
             $email = null;
 
             // Ambil email dari relasi visitor
-            if ($transaction->visitor && $transaction->visitor->email) {
-                $email = $transaction->visitor->email;
+            if ($transaction->visitor_1 && $transaction->visitor_1->email) {
+                $email = $transaction->visitor_1->email;
             }
 
             if ($email) {

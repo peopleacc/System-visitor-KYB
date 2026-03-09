@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\otp;
 class OtpController extends Controller
 {
     public function showOtp()
@@ -42,6 +42,8 @@ class OtpController extends Controller
             return back()->withErrors(['otp' => 'Kode OTP tidak valid. Silakan coba lagi.']);
         }
 
+
+
         // OTP berhasil diverifikasi
         session(['otp_verified' => true]);
         session()->forget(['otp_code', 'otp_expires_at']);
@@ -51,7 +53,7 @@ class OtpController extends Controller
 
     public function resendOtp()
     {
-        if (!Auth::check()) {
+        if (!Auth::guard('lembur')->check()) {
             return redirect()->route('login');
         }
 
@@ -60,12 +62,17 @@ class OtpController extends Controller
 
         session([
             'otp_code' => $otp,
-            'otp_email' => Auth::user()->email,
+            'otp_email' => Auth::guard('lembur')->user()->no_hp ?? '',
             'otp_expires_at' => now()->addMinutes(5),
         ]);
 
+        otp::create([
+            'code' => $otp,
+            'expired_at' => now()->addMinutes(5),
+        ]);
+
         // In production, send OTP via email/SMS here
-        \Log::info('New OTP for ' . Auth::user()->email . ': ' . $otp);
+        \Log::info('New OTP for user: ' . $otp);
 
         return redirect()->route('otp.show')->with('success', 'Kode OTP baru telah dikirim.');
     }

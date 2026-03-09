@@ -10,11 +10,14 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('barcodes', function (Blueprint $table) {
+        Schema::create('notifikasis', function (Blueprint $table) {
             $table->id();
-            $table->string('code')->unique();
-            $table->string('nama_barcode')->nullable();
-            $table->string('status');
+            $table->foreignId('visitor_id')
+                ->constrained('visitors')           // ← sebutkan nama tabel secara eksplisit
+                ->cascadeOnUpdate()
+                ->onDelete('cascade');
+            $table->string('no_hp');
+            $table->text('message');
             $table->timestamps();
         });
     }
@@ -24,6 +27,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('barcodes');
+        Schema::dropIfExists('notifikasis');
     }
 };

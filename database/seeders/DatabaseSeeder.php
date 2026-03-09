@@ -16,30 +16,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'role' => 'admin',
-            'password' => 'pasword'
+        // Run application seeders
+        $this->call([
+            CardSeeder::class,
         ]);
 
     }
 
-    public function runVisitor(): void
+    public function run_visitor(): void
     {
+        $this->call(CardSeeder::class);
+    }
 
-        Visitor::factory()->create([
-            'name_tamu' => 'Raisa Akmal Faridi',
-            'Alamat' => 'Jl. Kebon Jeruk No. 123',
-            'no_telp' => '081234567890',
-            'no_police' => '081234567890',
-            'user_meeting' =>    'raisa',
-            'keperluan' => 'pengen makan',
-            'jumlah_pengunjung' => 1,
-            'tanggal_masuk' => now(),
-            'user_id' => 1,
+    public function run_dapt(): void
+    {
+        $this->call([
+            DepartmentSeeder::class,
         ]);
     }
 }

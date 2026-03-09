@@ -70,14 +70,16 @@
             <table class="w-full" id="accTable">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
+
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama / Nama
+                        Perusahaan</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">No Telp
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">User
                         Meeting</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Waktu Input
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
                 </thead>
@@ -87,16 +89,24 @@
                             data-searchable="{{ $visitor->name }} {{ $visitor->no_hp }} {{ $visitor->user_meeting }} {{ $visitor->type }} {{ $visitor->status }}"
                             data-name="{{ $visitor->name }}" data-date="{{ $visitor->date }}">
                             <td class="px-6 py-4 text-sm text-gray-500 font-mono">#{{ $visitor->id }}</td>
+                            <td class="px-6 py-4">
+                                @if ($visitor->type == 'visitor')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-green-700">
+                                        {{ $visitor->type }}
+                                    </span>
+                                @else
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-blue-700">
+                                        {{ $visitor->type }}
+                                    </span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-sm text-gray-700 font-medium">{{ $visitor->name }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $visitor->no_hp }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $visitor->user_meeting }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $visitor->date }}</td>
-                            <td class="px-6 py-4">
-                                <span
-                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
-                                    {{ $visitor->type }}
-                                </span>
-                            </td>
+
                             @if ($visitor->status == "waiting")
                                 <td class="px-6 py-4">
                                     <span

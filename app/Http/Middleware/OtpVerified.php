@@ -15,7 +15,7 @@ class OtpVerified
     public function handle(Request $request, Closure $next)
     {
         // Jika user belum login, redirect ke login
-        if (!Auth::check()) {
+        if (!Auth::guard('lembur')->check()) {
             return redirect()->route('login');
         }
 

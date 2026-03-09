@@ -9,33 +9,36 @@ use Illuminate\Support\Facades\Crypt;
 
 class Visitor extends Model
 {
-    protected $fillable = ['email', 'name_tamu', 'Alamat', 'no_telp', 'no_police', 'user_meeting', 'keperluan', 'jumlah_pengunjung', 'tanggal_masuk', 'user_id'];
+    protected $fillable = [
+        'tanggal',
+        'email',
+        'full_name',
+        'institution',
+        'no_hp',
+        'card_id',
+        'no_kendaraan',
+        'yang_ditemui',
+        'urusan',
+        'jumlah',
+        'jam_pertemuan',
+        'check_in_at',
+        'check_out_at',
+        'batch',
+        'user_id'
+    ];
 
 
-    public function cast(): array
+
+
+
+    public function transaction_1(): BelongsTo
     {
-        return [
-            'name_tamu' => 'encrypted:string',
-        ];
+        return $this->belongsTo(transaction::class);
     }
 
-    public function getNameTamuDecryptedAttribute()
+    public function notifikasi_1(): HasMany
     {
-        try {
-            return Crypt::decryptString($this->attributes['name_tamu']);
-        } catch (\Exception $e) {
-            return $this->attributes['name_tamu'];
-        }
+        return $this->hasMany(Notifikasi::class);
     }
 
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function visitorAccs(): HasMany
-    {
-        return $this->hasMany(Visitor_acc::class, 'visitor_id');
-    }
 }

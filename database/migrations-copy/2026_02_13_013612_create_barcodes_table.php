@@ -10,14 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('otp_codes', function (Blueprint $table) {
+        Schema::create('barcodes', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
-            $table->timestamp('expired_at');
-            $table->boolean('is_used')->default(false);
+            $table->string('code')->unique();
+            $table->string('')->nullable();
+            $table->string('status');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -25,6 +24,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('otp_codes');
+        Schema::dropIfExists('barcodes');
     }
 };

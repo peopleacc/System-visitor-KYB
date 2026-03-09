@@ -14,7 +14,7 @@ class RedirectIfAuthenticated
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && session('otp_verified')) {
+        if (Auth::guard('lembur')->check() && session('otp_verified')) {
             return redirect()->route('dashboard');
         }
 

@@ -10,14 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('suppliers', function (Blueprint $table) {
+        Schema::create('otp_codes', function (Blueprint $table) {
             $table->id();
-            $table->string('name_perushaan');
-            $table->string('nomor_police')->nullable();
-            $table->string('sopir')->nullable();
-            $table->text('paraf')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('code');
+            $table->timestamp('expired_at');
+            $table->boolean('is_used')->default(false);
             $table->timestamps();
         });
+
     }
 
     /**
@@ -25,6 +26,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('suppliers');
+        Schema::dropIfExists('otp_codes');
     }
 };

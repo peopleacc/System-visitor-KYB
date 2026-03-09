@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('contractors', function (Blueprint $table) {
+        Schema::create('vendors', function (Blueprint $table) {
             $table->id();
 
             // tanggal kerja
@@ -35,11 +35,22 @@ return new class extends Migration {
 
 
             $table->timestamps();
+
         });
+        // Add foreign key from cards.active_vendors_id -> vendors.id
+        // Schema::table('cards', function (Blueprint $table) {
+        //     $table->foreign('active_vendors_id')
+        //         ->references('id')->on('vendors')
+        //         ->nullOnDelete();
+        // });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('contractors');
+        // Schema::table('cards', function (Blueprint $table) {
+        //     $table->dropForeign(['active_visitor_id']);
+        // });
+
+        Schema::dropIfExists('vendors');
     }
 };
