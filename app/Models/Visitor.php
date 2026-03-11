@@ -12,21 +12,16 @@ class Visitor extends Model
     protected $fillable = [
         'tanggal',
         'email',
+        'alamat',
         'full_name',
         'institution',
         'no_hp',
-        'card_id',
         'no_kendaraan',
         'yang_ditemui',
         'urusan',
         'jumlah',
-        'jam_pertemuan',
-        'check_in_at',
-        'check_out_at',
-        'batch',
         'user_id'
     ];
-
 
 
 

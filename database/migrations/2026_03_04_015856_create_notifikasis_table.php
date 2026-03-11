@@ -12,14 +12,17 @@ return new class extends Migration {
     {
         Schema::create('notifikasis', function (Blueprint $table) {
             $table->id();
+            $table->string('user_meeting');
             $table->foreignId('visitor_id')
                 ->constrained('visitors')           // ← sebutkan nama tabel secara eksplisit
                 ->cascadeOnUpdate()
-                ->onDelete('cascade');
+                ->onDelete('cascade')
+                ->nullable();
             $table->foreignId('vendor_id')
                 ->constrained('vendors')           // ← sebutkan nama tabel secara eksplisit
                 ->cascadeOnUpdate()
-                ->onDelete('cascade');
+                ->onDelete('cascade')
+                ->nullable();
             $table->string('no_hp');
             $table->text('message');
             $table->timestamps();

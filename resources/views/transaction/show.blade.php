@@ -152,6 +152,23 @@
                         </div>
                     </div>
 
+                    {{-- Foto --}}
+                    @if($transaction->foto)
+                        <div class="flex items-start gap-3 p-4 bg-red-50/50 rounded-xl md:col-span-2">
+                            <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <span class="material-icons-outlined text-red-600" style="font-size:20px;">portrait</span>
+                            </div>
+                            <div class="min-w-0 w-full">
+                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Foto Visitor</p>
+                                <div class="overflow-hidden rounded-xl border-4 border-white shadow-md inline-block">
+                                    <img src="data:image/jpeg;base64,{{ base64_encode($transaction->foto) }}" 
+                                         alt="Foto {{ $transaction->name }}" 
+                                         class="w-48 object-cover hover:scale-105 transition-transform duration-300">
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Barcode --}}
                     @if($transaction->barcode)
                         <div class="flex items-start gap-3 p-4 bg-red-50/50 rounded-xl md:col-span-2">

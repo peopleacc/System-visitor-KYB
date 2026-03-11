@@ -11,6 +11,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\DeskController;
+use App\Http\Controllers\FormContraktorController;
 
 // ── Guest Only ───────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -43,6 +45,7 @@ Route::middleware(['auth.any', 'otp.verified'])->group(function () {
     // Checkin
     Route::get('/checkin', [CheckinController::class, 'index'])->name('check.in.index');
     Route::post('/checkin', [CheckinController::class, 'checkinApi'])->name('scan.store');
+    Route::post('/checkin/process', [CheckinController::class, 'processCheckinApi'])->name('checkin.process.api');
     Route::post('/checkin/checkout', [CheckinController::class, 'checkoutApi'])->name('checkin.checkout.api');
 
     // Checkout
@@ -54,8 +57,15 @@ Route::middleware(['auth.any', 'otp.verified'])->group(function () {
     Route::put('/visitor-acc/{id}', [TransactionController::class, 'update'])->name('transaction.update');
     Route::get('/visitor-acc/{id}', [TransactionController::class, 'show'])->name('transaction.show');
 
-    // Barcode
-    Route::get('/barcode', [BarcodeController::class, 'index'])->name('barcode.index');
-    Route::post('/barcode', [BarcodeController::class, 'store'])->name('barcode.store');
-    Route::delete('/barcode/{id}', [BarcodeController::class, 'destroy'])->name('barcode.destroy');
+    // Desk
+    Route::get('/desk', [DeskController::class, 'index'])->name('desk.index');
+    Route::get('/desk/history', [DeskController::class, 'history'])->name('desk.history');
+    Route::get('/desk/export', [DeskController::class, 'export'])->name('desk.export');
+    Route::get('/desk/exportvisitor', [DeskController::class, 'exportvisitor'])->name('desk.exportvisitor');
+
+    Route::get('/form-visitor', [FormVisitorController::class, 'form'])->name('form.visitor');
+    Route::post('/form-visitor', [FormVisitorController::class, 'store'])->name('form.visitor-store');
+
+    Route::get('/form-contraktor', [FormContraktorController::class, 'formContraktor'])->name('form.contraktor');
+    Route::post('/form-contraktor', [FormContraktorController::class, 'store'])->name('form.contraktor-store');
 });

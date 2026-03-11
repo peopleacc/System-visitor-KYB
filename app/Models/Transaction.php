@@ -25,6 +25,7 @@ class Transaction extends Model
         'check_out',
         'purpose',
         'type',
+        'foto',
         'barcode'
     ];
     public function visitor_1(): BelongsTo

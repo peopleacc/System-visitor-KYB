@@ -11,17 +11,13 @@ return new class extends Migration {
             $table->id();
             $table->date('tanggal')->nullable();
             $table->string('email');
+            $table->string('alamat');
             $table->string('full_name');
-            $table->string('institution')->nullable();
             $table->string('no_hp', 20)->nullable();
             $table->string('no_kendaraan', 255)->nullable();
             $table->string('yang_ditemui')->nullable();
             $table->string('urusan')->nullable();
             $table->unsignedInteger('jumlah')->nullable();
-            $table->time('jam_pertemuan')->nullable();
-            $table->timestamp('check_in_at')->nullable();
-            $table->timestamp('check_out_at')->nullable();
-            $table->string('batch')->nullable();
             $table->timestamps();
 
         });

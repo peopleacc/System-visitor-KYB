@@ -13,15 +13,13 @@ return new class extends Migration {
         Schema::create('vendors', function (Blueprint $table) {
             $table->id();
 
-            // tanggal kerja
-            $table->date('tanggal');
 
             // data perusahaan
             $table->string('nama_pt');
-            $table->string('nama_pekerjaan');
+            $table->string('nama_perusahaan');
             $table->string('area_pekerjaan');
             $table->string('email');
-            $table->string('tanggal_masuk');
+            $table->date('tanggal_masuk');
 
             // user / pic
             $table->string('pic')->nullable();

@@ -24,12 +24,12 @@ return new class extends Migration {
             $table->string('dept')->nullable();
             $table->string('location')->nullable();
             $table->string('status')->nullable();
-            $table->string('barcode')->nullable();
 
             $table->time('check_in')->nullable();
             $table->time('check_out')->nullable();
 
             $table->string('purpose')->nullable();
+            $table->binary('foto')->nullable();
             $table->string('type')->nullable();
 
             $table->timestamps();

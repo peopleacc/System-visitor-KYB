@@ -84,22 +84,49 @@
                         </div>
                     </div>
 
+                    {{-- Captcha --}}
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            Verifikasi <span class="text-red-400">*</span>
+                        </label>
 
-                    <!-- captcha -->
-                    <div class="mb-3">
-                        <label>Masukkan Angka Berikut</label>
-                        <div class="flex items-center gap-3">
-                            <span class="captcha-img">{!! captcha_img('math') !!}</span>
-                            <button type="button" onclick="refreshCaptcha()" class="text-red-500 hover:text-red-700">↻
-                                Refresh</button>
+                        {{-- Captcha Image + Refresh --}}
+                        <div
+                            class="flex items-center justify-between gap-3 p-3 bg-gray-50 border-[1.5px] border-gray-200 rounded-xl">
+                            <span
+                                class="captcha-img flex-shrink-0 scale-125 origin-left ml-2">{!! captcha_img('math') !!}</span>
+                            <button type="button" onclick="refreshCaptcha()"
+                                class="shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-white border border-gray-200 hover:bg-red-50 hover:border-red-200 text-gray-400 hover:text-red-500 transition-all duration-200 shadow-sm"
+                                title="Refresh Captcha">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            </button>
                         </div>
-                        <input type="text" name="captcha" 
-                            class="border-black border mt-2 {{ $errors->has('captcha') ? 'border-red-500' : '' }} " required />
-                        @error('captcha')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+
+                        {{-- Input Jawaban --}}
+                        <div class="relative">
+                            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                            </span>
+                            <input type="text" name="captcha" placeholder="Masukkan hasil perhitungan" required class="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 text-sm text-gray-800 placeholder-gray-400 transition-all duration-200 focus:outline-none focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:border-red-500
+            {{ $errors->has('captcha')
+    ? 'border-[1.5px] border-red-400 bg-red-50/50'
+    : 'border-[1.5px] border-gray-200' }}">
+                        </div>
                     </div>
 
+                    <style>
+                        .captcha-img img {
+                            height: 48px !important;
+                            width: auto !important;
+                            border-radius: 8px;
+                        }
+                    </style>
 
                     <script>
                         function refreshCaptcha() {

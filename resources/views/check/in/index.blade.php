@@ -3,21 +3,6 @@
 @extends('layout.app')
 @section('content')
 
-    {{-- Header Card --}}
-    <div class="relative overflow-hidden rounded-2xl mb-6" style="box-shadow: 0 10px 40px -10px rgba(239,68,68,0.25);">
-        <div class="absolute inset-0 bg-gradient-to-r from-red-600 via-red-500 to-red-700"></div>
-        <div class="relative p-6 flex items-center justify-between">
-            <div class="flex items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                    <span class="material-icons-outlined text-white text-3xl">login</span>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-white">Check In</h2>
-                    <p class="text-red-100/80 text-sm mt-0.5">Scan atau input kode untuk check-in</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -127,13 +112,34 @@
                             </div>
                         </div>
 
+                        {{-- Foto --}}
+                        <div id="visitorPhotoContainer"
+                            class="hidden flex items-start gap-3 p-4 bg-red-50/50 rounded-xl md:col-span-2">
+                            <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                                <span class="material-icons-outlined text-red-600" style="font-size:20px;">portrait</span>
+                            </div>
+                            <div class="min-w-0 w-full">
+                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Foto Visitor
+                                </p>
+                                <div class="overflow-hidden rounded-xl border-4 border-white shadow-md inline-block">
+                                    <img id="visitorPhotoImg" src="" alt="Foto Visitor"
+                                        class="w-48 object-cover hover:scale-105 transition-transform duration-300">
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
-                    {{-- Checkout Button (tampil jika status checked_in) --}}
-                    <div id="checkoutSection" class="hidden px-6 pb-6">
+                    {{-- Action Buttons --}}
+                    <div id="actionSection" class="hidden px-6 pb-6">
                         <div class="border-t border-gray-100 pt-5">
+                            <button id="checkinBtn" type="button"
+                                class="hidden w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-green-500/25 transition-all duration-200 hover:-translate-y-0.5 mb-3">
+                                <span class="material-icons-outlined" style="font-size:20px;">login</span>
+                                Check In Visitor
+                            </button>
                             <button id="checkoutBtn" type="button"
-                                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/25 transition-all duration-200 hover:-translate-y-0.5">
+                                class="hidden w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/25 transition-all duration-200 hover:-translate-y-0.5">
                                 <span class="material-icons-outlined" style="font-size:20px;">logout</span>
                                 Check Out Visitor
                             </button>
@@ -188,7 +194,8 @@
         const errorMessage = document.getElementById('errorMessage');
         const errorText = document.getElementById('errorText');
         const visitorData = document.getElementById('visitorData');
-        const checkoutSection = document.getElementById('checkoutSection');
+        const actionSection = document.getElementById('actionSection');
+        const checkinBtn = document.getElementById('checkinBtn');
         const checkoutBtn = document.getElementById('checkoutBtn');
         const statusDefault = document.getElementById('statusDefault');
         const statusSuccess = document.getElementById('statusSuccess');
@@ -196,16 +203,23 @@
         const statusTitle = document.getElementById('statusTitle');
         const statusSubtitle = document.getElementById('statusSubtitle');
 
+        const visitorPhotoContainer = document.getElementById('visitorPhotoContainer');
+        const visitorPhotoImg = document.getElementById('visitorPhotoImg');
+
         let currentTransactionId = null;
 
         function resetUI() {
             loadingIndicator.classList.add('hidden');
             errorMessage.classList.add('hidden');
             visitorData.classList.add('hidden');
-            checkoutSection.classList.add('hidden');
+            actionSection.classList.add('hidden');
+            checkinBtn.classList.add('hidden');
+            checkoutBtn.classList.add('hidden');
             statusDefault.classList.remove('hidden');
             statusSuccess.classList.add('hidden');
             statusCheckedOut.classList.add('hidden');
+            visitorPhotoContainer.classList.add('hidden');
+            visitorPhotoImg.src = '';
             currentTransactionId = null;
         }
 
@@ -228,19 +242,36 @@
             document.getElementById('visitorCheckIn').textContent = data.check_in || '-';
             document.getElementById('visitorCardCode').textContent = data.card_code || '-';
 
+            if (data.foto) {
+                visitorPhotoImg.src = 'data:image/jpeg;base64,' + data.foto;
+                visitorPhotoImg.alt = 'Foto ' + (data.name || 'Visitor');
+                visitorPhotoContainer.classList.remove('hidden');
+            } else {
+                visitorPhotoContainer.classList.add('hidden');
+                visitorPhotoImg.src = '';
+            }
+
             currentTransactionId = data.id;
 
-            // Tampilkan tombol checkout jika status checked_in
-            if (data.status === 'checked_in') {
-                checkoutSection.classList.remove('hidden');
+            // Tampilkan action buttons sesuai status
+            actionSection.classList.remove('hidden');
+            checkinBtn.classList.add('hidden');
+            checkoutBtn.classList.add('hidden');
+
+            if (data.status === 'approved') {
+                checkinBtn.classList.remove('hidden');
+                checkoutBtn.classList.add('hidden');
+            } else if (data.status === 'checked_in') {
+                checkinBtn.classList.add('hidden');
+                checkoutBtn.classList.remove('hidden');
             }
 
             // Update status sidebar
             statusDefault.classList.add('hidden');
             statusSuccess.classList.remove('hidden');
             statusCheckedOut.classList.add('hidden');
-            statusTitle.textContent = message || 'Check-In Berhasil!';
-            statusSubtitle.textContent = data.status === 'checked_in' ? 'Visitor telah melakukan check-in' : 'Data visitor ditemukan';
+            statusTitle.textContent = message || (data.status === 'approved' ? 'Data Ditemukan' : 'Check-In Berhasil!');
+            statusSubtitle.textContent = data.status === 'checked_in' ? 'Visitor telah melakukan check-in' : 'Silakan klik tombol Check In';
         }
 
         // Auto-submit dengan debounce (tunggu 600ms setelah berhenti ketik)
@@ -296,6 +327,47 @@
             setTimeout(() => { kodeInput.value = ''; kodeInput.focus(); }, 500);
         }
 
+        // Checkin button
+        checkinBtn.addEventListener('click', async function () {
+            if (!currentTransactionId) return;
+            if (!confirm('Apakah Anda yakin ingin check-in visitor ini?')) return;
+
+            this.disabled = true;
+            this.innerHTML = '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> Memproses...';
+
+            try {
+                const response = await fetch("{{ route('checkin.process.api') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ id: currentTransactionId }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    checkinBtn.classList.add('hidden');
+                    checkoutBtn.classList.remove('hidden');
+                    
+                    statusTitle.textContent = 'Check-In Berhasil!';
+                    statusSubtitle.textContent = 'Visitor telah melakukan check-in';
+
+                    // Update check-in display to show checkin time
+                    document.getElementById('visitorCheckIn').textContent = result.data.check_in || '-';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan jaringan.');
+            }
+
+            this.disabled = false;
+            this.innerHTML = '<span class="material-icons-outlined" style="font-size:20px;">login</span> Check In Visitor';
+        });
+
         // Checkout button
         checkoutBtn.addEventListener('click', async function () {
             if (!currentTransactionId) return;
@@ -318,7 +390,8 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    checkoutSection.classList.add('hidden');
+                    actionSection.classList.add('hidden');
+                    checkoutBtn.classList.add('hidden');
                     statusSuccess.classList.add('hidden');
                     statusCheckedOut.classList.remove('hidden');
 

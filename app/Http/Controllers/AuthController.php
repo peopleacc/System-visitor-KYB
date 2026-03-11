@@ -16,13 +16,13 @@ class AuthController extends Controller
         if (Auth::guard('lembur')->check()) {
             // Jika sudah login dan OTP terverifikasi, redirect ke dashboard
             if (session('otp_verified')) {
-                return redirect()->route('dashboard');
+                return redirect()->route('desk.index');
             }
             // Jika sudah login tapi OTP belum terverifikasi, redirect ke OTP
             return redirect()->route('otp.show');
         } elseif (Auth::check()) {
             if (session('otp_satpam')) {
-                return redirect()->route('dashboard');
+                return redirect()->route('desk.index');
             }
         }
 

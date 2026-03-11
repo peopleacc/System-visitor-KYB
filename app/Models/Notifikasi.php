@@ -8,13 +8,19 @@ class Notifikasi extends Model
 {
     protected $table = "notifikasis";
     protected $fillable = [
-        'visitor_id', 
+        'user_meeting',
+        'visitor_id',
+        'vendor_id',
         'no_hp',
         'message',
     ];
 
-    public function visitor_1()
+    public function visitors_1()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Notifikasis::class);
+    }
+    public function vendors_1()
+    {
+        return $this->belongsTo(Notifikasis::class);
     }
 }

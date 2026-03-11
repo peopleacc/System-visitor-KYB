@@ -58,7 +58,7 @@ class OtpController extends Controller
             // Hapus keys terkait OTP
             session()->forget(['otp_code', 'otp_satpam', 'otp_expires_at']);
 
-            return redirect()->route('dashboard')->with('success', 'Login berhasil!');
+            return redirect()->route('desk.index')->with('success', 'Login berhasil!');
         }
 
         return back()->withErrors(['otp' => 'Kode OTP tidak valid. Silakan coba lagi.']);
