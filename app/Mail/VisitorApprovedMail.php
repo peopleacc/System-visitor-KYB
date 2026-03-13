@@ -5,7 +5,6 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class VisitorApprovedMail extends Mailable
 {
@@ -14,34 +13,76 @@ class VisitorApprovedMail extends Mailable
     public $visitor;
     public $codeValue;
     public $qrImageUrl;
+    // public $logoBase64;  // tambah ini
+    public $logoCid = 'logo-kayaba'; // ← kita pakai ini sebagai identifier
 
     public function __construct($visitor)
     {
         $this->visitor = $visitor;
     }
 
-    /**
-     * Build the message.
-     */
+    // public function build()
+    // {
+    //     // Logo sebagai base64
+    //     $logoPath = public_path('image/kayaba-logo.png');
+    //     dd([
+    //         'path' => $logoPath,
+    //         'exists' => file_exists($logoPath),
+    //     ]);
+    //     if (file_exists($logoPath)) {
+    //         $logoData = base64_encode(file_get_contents($logoPath));
+    //         $this->logoBase64 = 'data:image/png;base64,' . $logoData;
+    //     }
+
+    //     // Get barcode code
+    //     $this->codeValue = null;
+    //     if (is_object($this->visitor) && isset($this->visitor->card_qr->code)) {
+    //         $this->codeValue = $this->visitor->card_qr->code;
+    //     }
+
+    //     // QR image URL
+    //     $this->qrImageUrl = null;
+    //     if ($this->codeValue) {
+    //         $this->qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($this->codeValue);
+    //     }
+
+    //     return $this->subject('Visitor Disetujui')
+    //         ->view('emails.visitor-approved')
+    //         ->with([
+    //             'codeValue' => $this->codeValue,
+    //             'qrImageUrl' => $this->qrImageUrl,
+    //             'logoBase64' => $this->logoBase64,
+    //         ]);
+    // }
+
     public function build()
     {
-        // Get barcode code from visitor_acc
-        $this->codeValue = null;
-        if (is_object($this->visitor) && isset($this->visitor->barcode)) {
-            $this->codeValue = $this->visitor->barcode;
-        }
+        $this->codeValue = $this->visitor->card_qr->code ?? null;
 
-        // Generate QR code image URL via public API (works in all email clients)
-        $this->qrImageUrl = null;
-        if ($this->codeValue) {
-            $this->qrImageUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($this->codeValue);
-        }
+        $this->qrImageUrl = $this->codeValue
+            ? 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($this->codeValue)
+            : null;
 
-        return $this->subject('Visitor Disetujui')
+        $logoPath = public_path('image/kayaba-logo.png');
+
+        $viewData = [
+            'codeValue' => $this->codeValue,
+            'qrImageUrl' => $this->qrImageUrl,
+        ];
+
+        $mail = $this->subject('Visitor Disetujui')
             ->view('emails.visitor-approved')
-            ->with([
-                'codeValue' => $this->codeValue,
-                'qrImageUrl' => $this->qrImageUrl,
+            ->with($viewData);
+
+        // Attach logo sebagai inline image dengan CID
+        if (file_exists($logoPath)) {
+            $mail->attach($logoPath, [
+                'as' => 'logo.png',
+                'mime' => 'image/png',
+                'cid' => $this->logoCid,   // ← penting!
             ]);
+        }
+
+        return $mail;
     }
 }

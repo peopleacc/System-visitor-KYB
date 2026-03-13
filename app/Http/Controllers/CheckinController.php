@@ -60,7 +60,7 @@ class CheckinController extends Controller
                     'foto' => $transaction->foto ? base64_encode($transaction->foto) : null,
                 ],
             ]);
-        } elseif ($transaction->status == 'checked_in') {
+        } elseif ($transaction->status == 'check_in') {
             // Sudah check-in, tampilkan data saja
             return response()->json([
                 'success' => true,
@@ -78,7 +78,7 @@ class CheckinController extends Controller
                     'foto' => $transaction->foto ? base64_encode($transaction->foto) : null,
                 ],
             ]);
-        } elseif ($transaction->status == 'checked_out') {
+        } elseif ($transaction->status == 'check_out') {
             return response()->json([
                 'success' => false,
                 'message' => 'Tidak ada transaksi yang terkait dengan card ini.',
@@ -116,7 +116,7 @@ class CheckinController extends Controller
 
         $transaction->update([
             'check_in' => now(),
-            'status' => 'checked_in',
+            'status' => 'check_in',
         ]);
 
         if ($transaction->card_id) {
@@ -149,23 +149,26 @@ class CheckinController extends Controller
 
         $transaction = Transaction::findOrFail($request->id);
 
-        if ($transaction->status !== 'checked_in') {
+        if ($transaction->status !== 'check_in') {
             return response()->json([
                 'success' => false,
                 'message' => 'Visitor belum check-in atau sudah check-out.',
             ], 400);
         }
 
+
+        $cardId = $transaction->card_id;  // simpan dulu
+
         $transaction->update([
             'check_out' => now(),
-            'status' => 'checked_out',
+            'status' => 'check_out',
+            'card_id' => null,          // baru null-kan
         ]);
 
-        // Kembalikan status card ke available
-        if ($transaction->card_id) {
-            $card = Card::find($transaction->card_id);
+        if ($cardId) {
+            $card = Card::find($cardId);  // pakai $cardId yang sudah disimpan
             if ($card) {
-                $card->update(['status' => 'available']);
+                $card->update(['status' => 'available']);  // jalan dengan benar
             }
         }
 

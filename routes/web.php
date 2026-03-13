@@ -12,6 +12,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CheckinController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\DeskController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\FormContraktorController;
 
 // ── Guest Only ───────────────────────────────────────────────
@@ -58,6 +59,7 @@ Route::middleware(['auth.any', 'otp.verified'])->group(function () {
     Route::get('/visitor-acc/{id}', [TransactionController::class, 'show'])->name('transaction.show');
 
     // Desk
+// Desk
     Route::get('/desk', [DeskController::class, 'index'])->name('desk.index');
     Route::get('/desk/history', [DeskController::class, 'history'])->name('desk.history');
     Route::get('/desk/export', [DeskController::class, 'export'])->name('desk.export');
@@ -68,4 +70,10 @@ Route::middleware(['auth.any', 'otp.verified'])->group(function () {
 
     Route::get('/form-contraktor', [FormContraktorController::class, 'formContraktor'])->name('form.contraktor');
     Route::post('/form-contraktor', [FormContraktorController::class, 'store'])->name('form.contraktor-store');
+
+    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+    Route::get('/history/api', [HistoryController::class, 'api'])->name('history.api');
+    Route::get('/history/dates', [HistoryController::class, 'dates'])->name('history.dates');
+    Route::get('/history/export', [HistoryController::class, 'export'])->name('history.export');
+
 });

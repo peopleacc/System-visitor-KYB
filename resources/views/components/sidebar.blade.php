@@ -25,17 +25,24 @@
                     </span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('history.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                          {{ request()->routeIs('history.index')
+    ? 'menu-item-active'
+    : 'hover:bg-white/10' }}">
+                    <i class="bi bi-clock-history"></i> <span class="font-medium"> History Visitor
+                    </span>
+                </a>
+            </li>
 
             <div class="text-xs mt-8 font-semibold text-white/60 uppercase tracking-wider px-4 mb-3">
                 Kelola Visitor
             </div>
             @if(Auth::check())
 
-
-
                     <li>
                         <a href="{{ route('check.in.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                                                                                                                                                                                                                                                                          {{ request()->routeIs('check.in.*')
+                                                                                                                                                                                                                                                                                                                          {{ request()->routeIs('check.in.*')
                 ? 'menu-item-active'
                 : 'hover:bg-white/10' }}"><i class="bi bi-box-arrow-in-right"></i>
                             <span class="font-medium">Check
@@ -48,7 +55,7 @@
 
                     <li>
                         <a href="{{ route('transaction.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                                                                                                                                                                                                                                                                                          {{ request()->routeIs('transaction.*')
+                                                                                                                                                                                                                                                                                                                                          {{ request()->routeIs('transaction.*')
                 ? 'menu-item-active'
                 : 'hover:bg-white/10' }}"><i class="bi bi-list text-xl"></i> <span class="font-medium">List
                                 Visitor</span>

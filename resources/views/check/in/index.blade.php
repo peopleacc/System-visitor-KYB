@@ -114,7 +114,7 @@
 
                         {{-- Foto --}}
                         <div id="visitorPhotoContainer"
-                            class="hidden flex items-start gap-3 p-4 bg-red-50/50 rounded-xl md:col-span-2">
+                            class="hidden items-start gap-3 p-4 bg-red-50/50 rounded-xl md:col-span-2">
                             <div class="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
                                 <span class="material-icons-outlined text-red-600" style="font-size:20px;">portrait</span>
                             </div>
@@ -134,12 +134,12 @@
                     <div id="actionSection" class="hidden px-6 pb-6">
                         <div class="border-t border-gray-100 pt-5">
                             <button id="checkinBtn" type="button"
-                                class="hidden w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-green-500/25 transition-all duration-200 hover:-translate-y-0.5 mb-3">
+                                class="hidden w-full items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-green-500/25 transition-all duration-200 hover:-translate-y-0.5 mb-3">
                                 <span class="material-icons-outlined" style="font-size:20px;">login</span>
                                 Check In Visitor
                             </button>
                             <button id="checkoutBtn" type="button"
-                                class="hidden w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/25 transition-all duration-200 hover:-translate-y-0.5">
+                                class="hidden w-full items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-red-500/25 transition-all duration-200 hover:-translate-y-0.5">
                                 <span class="material-icons-outlined" style="font-size:20px;">logout</span>
                                 Check Out Visitor
                             </button>
@@ -214,11 +214,14 @@
             visitorData.classList.add('hidden');
             actionSection.classList.add('hidden');
             checkinBtn.classList.add('hidden');
+            checkinBtn.classList.remove('inline-flex');
             checkoutBtn.classList.add('hidden');
+            checkoutBtn.classList.remove('inline-flex');
             statusDefault.classList.remove('hidden');
             statusSuccess.classList.add('hidden');
             statusCheckedOut.classList.add('hidden');
             visitorPhotoContainer.classList.add('hidden');
+            visitorPhotoContainer.classList.remove('flex');
             visitorPhotoImg.src = '';
             currentTransactionId = null;
         }
@@ -246,8 +249,10 @@
                 visitorPhotoImg.src = 'data:image/jpeg;base64,' + data.foto;
                 visitorPhotoImg.alt = 'Foto ' + (data.name || 'Visitor');
                 visitorPhotoContainer.classList.remove('hidden');
+                visitorPhotoContainer.classList.add('flex');
             } else {
                 visitorPhotoContainer.classList.add('hidden');
+                visitorPhotoContainer.classList.remove('flex');
                 visitorPhotoImg.src = '';
             }
 
@@ -256,14 +261,16 @@
             // Tampilkan action buttons sesuai status
             actionSection.classList.remove('hidden');
             checkinBtn.classList.add('hidden');
+            checkinBtn.classList.remove('inline-flex');
             checkoutBtn.classList.add('hidden');
+            checkoutBtn.classList.remove('inline-flex');
 
             if (data.status === 'approved') {
                 checkinBtn.classList.remove('hidden');
-                checkoutBtn.classList.add('hidden');
-            } else if (data.status === 'checked_in') {
-                checkinBtn.classList.add('hidden');
+                checkinBtn.classList.add('inline-flex');
+            } else if (data.status === 'check_in') {
                 checkoutBtn.classList.remove('hidden');
+                checkoutBtn.classList.add('inline-flex');
             }
 
             // Update status sidebar
@@ -271,7 +278,7 @@
             statusSuccess.classList.remove('hidden');
             statusCheckedOut.classList.add('hidden');
             statusTitle.textContent = message || (data.status === 'approved' ? 'Data Ditemukan' : 'Check-In Berhasil!');
-            statusSubtitle.textContent = data.status === 'checked_in' ? 'Visitor telah melakukan check-in' : 'Silakan klik tombol Check In';
+            statusSubtitle.textContent = data.status === 'check_in' ? 'Visitor telah melakukan check-in' : 'Silakan klik tombol Check In';
         }
 
         // Auto-submit dengan debounce (tunggu 600ms setelah berhenti ketik)
@@ -350,8 +357,10 @@
 
                 if (result.success) {
                     checkinBtn.classList.add('hidden');
+                    checkinBtn.classList.remove('inline-flex');
                     checkoutBtn.classList.remove('hidden');
-                    
+                    checkoutBtn.classList.add('inline-flex');
+
                     statusTitle.textContent = 'Check-In Berhasil!';
                     statusSubtitle.textContent = 'Visitor telah melakukan check-in';
 
@@ -392,6 +401,7 @@
                 if (result.success) {
                     actionSection.classList.add('hidden');
                     checkoutBtn.classList.add('hidden');
+                    checkoutBtn.classList.remove('inline-flex');
                     statusSuccess.classList.add('hidden');
                     statusCheckedOut.classList.remove('hidden');
 

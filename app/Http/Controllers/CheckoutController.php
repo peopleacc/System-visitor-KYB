@@ -43,7 +43,7 @@ class CheckoutController extends Controller
             ], 404);
         }
 
-        if ($transaction->status !== 'checked_in') {
+        if ($transaction->status !== 'check_in') {
             return response()->json([
                 'success' => false,
                 'message' => 'Visitor belum check-in atau sudah check-out. Status: ' . $transaction->status,
@@ -53,7 +53,7 @@ class CheckoutController extends Controller
         // Lakukan check-out
         $transaction->update([
             'check_out' => now(),
-            'status' => 'checked_out',
+            'status' => 'check_out',
         ]);
 
         // Kembalikan status card

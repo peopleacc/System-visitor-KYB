@@ -20,7 +20,8 @@ class TransactionController extends Controller
 
         $transactions = Transaction::with('visitor_1')
             ->where('dept', $dept)
-            ->orderBy('status', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->orderBy('status', 'asc')
             ->get();
 
         return view('transaction.index', compact('transactions'));
@@ -35,58 +36,72 @@ class TransactionController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'location' => 'required|in:office,plant',
+            'location' => 'required|array|min:1',
+            'location.*' => 'in:office,plant',
         ]);
 
+        $locations = $validated['location'];
+        $resolvedLocation = (count($locations) === 2 || in_array('plant', $locations))
+            ? 'plant'
+            : 'office';
+
         try {
+            $transaction = DB::transaction(function () use ($resolvedLocation, $id) {
 
-            DB::transaction(function () use ($validated, $id, &$transaction) {
-
-                // Ambil kartu available sesuai lokasi
-                $card = Card::where('tipe', $validated['location'])
+                $card = Card::where('tipe', $resolvedLocation)
                     ->where('status', 'available')
                     ->first();
 
                 if (!$card) {
-                    throw new \Exception('Card tidak tersedia.');
+                    throw new \Exception('Card tidak tersedia untuk lokasi ' . $resolvedLocation . '.');
                 }
 
-                // Booking card
-                $card->update([
-                    'status' => 'booked'
-                ]);
+                $card->update(['status' => 'booked']);
 
-                // Update transaction
-                $transaction = Transaction::with('visitor_1')->findOrFail($id);
+                $transaction = Transaction::findOrFail($id);
 
                 $transaction->update([
                     'status' => 'approved',
                     'card_id' => $card->id,
                 ]);
+
+                return $transaction;
             });
 
-            // Kirim email ke visitor
-            try {
+            // Cek apakah vendor atau visitor
+            if ($transaction->vendor_id == null) {
+                // Visitor
+                $transaction->load(['card_qr', 'visitor_1']);
 
-                $email = $transaction->visitor_1->email ?? null;
-
-                if ($email) {
-                    Mail::to($email)->send(new VisitorApprovedMail($transaction));
+                try {
+                    $email = $transaction->visitor_1->email ?? null;
+                    if ($email) {
+                        Mail::to($email)->send(new VisitorApprovedMail($transaction));
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Gagal mengirim email visitor approved: ' . $e->getMessage());
                 }
+            } else {
+                // Vendor
+                $transaction->load(['card_qr', 'vendors_1']);
 
-            } catch (\Exception $e) {
-                Log::error('Gagal mengirim email visitor approved: ' . $e->getMessage());
+                try {
+                    $email = $transaction->vendors_1->email ?? null;
+                    if ($email) {
+                        Mail::to($email)->send(new VisitorApprovedMail($transaction));
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Gagal mengirim email vendor approved: ' . $e->getMessage());
+                }
             }
-
-            return redirect()->route('transaction.index')
+            return redirect()->route('transaction.show', ['id' => $id])
                 ->with('success', 'Visitor berhasil disetujui.');
-
+                
         } catch (\Throwable $e) {
-
             Log::error('Gagal approve transaction: ' . $e->getMessage());
-
-            return redirect()->back()
-                ->with('error', $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
+
+
 }
